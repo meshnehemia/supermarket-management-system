@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row g-3">
+        <div class="col-lg-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/download.jpeg') }}" class="card-img-top" alt="Faces">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users Enrolled</h5>
+                    <p class="card-text">{{ total_users }} users enrolled.</p>
+                    <a href="/view_faces" class="btn btn-primary">View All Faces</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/download.jpeg') }}" class="card-img-top" alt="Items">
+                <div class="card-body">
+                    <h5 class="card-title">Total Items Tracked</h5>
+                    <p class="card-text">{{ total_items_tracked }} items tracked.</p>
+                    <a href="/item_tracker" class="btn btn-primary">Track Items</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/download.jpeg') }}" class="card-img-top" alt="Payments">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Payments</h5>
+                    <p class="card-text">{{ recent_payments }} payments processed.</p>
+                    <a href="/generate_receipt" class="btn btn-primary">Generate Receipt</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/download.jpeg') }}" class="card-img-top" alt="Recognized Faces">
+                <div class="card-body">
+                    <h5 class="card-title">Recognized Faces</h5>
+                    <p class="card-text">{{ recognized_faces }} faces recognized today.</p>
+                    <a href="/recognize_faces" class="btn btn-primary">Recognize Faces</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/download.jpeg') }}" class="card-img-top" alt="Receipts">
+                <div class="card-body">
+                    <h5 class="card-title">Receipts Generated</h5>
+                    <p class="card-text">{{ receipts_generated }} receipts generated today.</p>
+                    <a href="/generate_receipt" class="btn btn-primary">Generate Receipt</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/download.jpeg') }}" class="card-img-top" alt="Cars in Parking">
+                <div class="card-body">
+                    <h5 class="card-title">Cars in Parking</h5>
+                    <p class="card-text">{{ cars_in_parking }} cars identified in parking.</p>
+                    <a href="/car_parking" class="btn btn-primary">View Parking</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
