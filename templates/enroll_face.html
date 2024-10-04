@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Enroll Face</h2>
+    
+    <div class="row">
+        <!-- Video element for capturing the face -->
+        <div class="col-md-6">
+            <div class="text-center">
+                <img id="video" width="100%" height="400" src="{{ url_for('video_feed') }}" autoplay>
+                
+                <div class="d-block">
+                    <button id="capture" class="btn btn-success mt-2">Capture Face</button>
+                    <button id="stop-camera" class="btn btn-danger mt-2">Stop Camera</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Div to show the captured image -->
+        <div class="col-md-6">
+            <h3>Captured Image</h3>
+            <img id="captured-image" src="" alt="Captured Face" class="img-thumbnail" style="width: 100%; height: auto; display:none;">
+            <div id="face-status" style="margin-top: 10px; font-weight: bold;"></div>
+            <div>
+                <button id="re-capture" class="btn btn-warning mt-2" style="display:none;">Re-capture</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form for entering user details (hidden initially) -->
+    <div id="user-form" class="mt-4" style="display:none;">
+        <h3>Enter User Details</h3>
+        <form id="enroll-form">
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phone" required>
+            </div>
+            <div class="mb-3">
+                <label for="id" class="form-label">ID Number</label>
+                <input type="text" class="form-control" id="id" required>
+            </div>
+            <div class="mb-3">
+                <label for="area" class="form-label">Area of Residence (Optional)</label>
+                <input type="text" class="form-control" id="area">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const captureButton = document.getElementById('capture');
+    const userForm = document.getElementById('user-form');
+    const capturedImage = document.getElementById('captured-image');
+    const reCaptureButton = document.getElementById('re-capture');
+    const stopCameraButton = document.getElementById('stop-camera');
+    const faceStatus = document.getElementById('face-status');
+
+    // Handle capturing the face
+    captureButton.addEventListener('click', () => {
+        // Create a canvas to capture the image from the video feed
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;  // Set to the image width
+        canvas.height = 480; // Set to the image height
+        const context = canvas.getContext('2d');
+        const videoElement = document.getElementById('video');
+
+        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/png');
+
+        // Display the captured image regardless of detection result
+        capturedImage.src = imageData; // Set captured image source
+        capturedImage.style.display = 'block'; // Show the captured image
+
+        // Send the image to the server for recognition
+        fetch('/recognize_face', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image: imageData })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update UI based on recognition result
+            if (data.status === 'error') {
+                faceStatus.innerText = 'No face detected'; // Show error message
+                reCaptureButton.style.display = 'block'; // Show re-capture button
+                userForm.style.display = 'none'; // Hide user form
+            } else {
+                faceStatus.innerText = data.message === 'Unknown' ? 'Unknown' : `Detected: ${data.message}`;
+                reCaptureButton.style.display = 'none'; // Hide re-capture button
+
+                if (data.message === 'Unknown') {
+                    userForm.style.display = 'block'; // Show user form for enrollment
+                } else {
+                    userForm.style.display = 'none'; // Hide user form
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error recognizing face:', error);
+        });
+    });
+
+    // Handle re-capture
+    reCaptureButton.addEventListener('click', () => {
+        capturedImage.style.display = 'none'; // Hide captured image
+        reCaptureButton.style.display = 'none'; // Hide re-capture button
+        userForm.style.display = 'none'; // Hide form
+        faceStatus.innerText = ''; // Clear face status
+    });
+
+    // Handle form submission
+    document.getElementById('enroll-form').addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        // Capture form data
+        const formData = {
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            id: document.getElementById('id').value,
+            area: document.getElementById('area').value,
+            image: capturedImage.src // Include the captured image data
+        };
+
+        console.log("User Data:", formData);
+        
+        // Send the formData to the server using Fetch API
+        fetch('/enroll_face', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message); // Alert success message or handle it accordingly
+            // Reset the form and captured image after successful enrollment
+            capturedImage.style.display = 'none';
+            reCaptureButton.style.display = 'none';
+            userForm.style.display = 'none';
+            document.getElementById('enroll-form').reset();
+            faceStatus.innerText = ''; // Clear face status
+        })
+        .catch(error => {
+            console.error('Error enrolling face:', error);
+        });
+    });
+
+    // Handle stopping the camera
+    stopCameraButton.addEventListener('click', () => {
+        const videoElement = document.getElementById('video');
+        videoElement.src = ""; // Stop the video feed
+        stopCameraButton.style.display = 'none'; // Hide the stop button
+        captureButton.style.display = 'none'; // Hide the capture button
+    });
+</script>
+{% endblock %}
