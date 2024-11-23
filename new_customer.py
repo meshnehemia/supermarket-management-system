@@ -18,7 +18,7 @@ known_names = []
 # MySQL database connection
 db_config = {
     'user': 'root',
-    'password': '@Mesh1234',
+    'password': '',
     'host': 'localhost',
     'database': 'supermarket'
 }

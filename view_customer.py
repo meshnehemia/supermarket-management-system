@@ -6,7 +6,7 @@ view_customer_bp = Blueprint('view_customer', __name__)
 # MySQL database connection
 db_config = {
     'user': 'root',
-    'password': '@Mesh1234',
+    'password': '',
     'host': 'localhost',
     'database': 'supermarket'
 }
